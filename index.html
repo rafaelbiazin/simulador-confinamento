@@ -90,10 +90,7 @@
   <header>
     <h1><span class="emoji">🐂</span> Confinamento vs Aplicação <span class="tag">1 cabeça · MVP</span></h1>
     <div class="sub">Compra do boi + confinamento × venda no boi gordo. E no fim: compensa mais que deixar o dinheiro rendendo?</div>
-    <div class="presets">
-      <button class="mkt" onclick="loadPreset('mercado')">📊 Padrão de mercado (jun/2026)</button>
-      <button onclick="loadPreset('meu')">Meu cenário inicial</button>
-    </div>
+    <div style="margin-top:10px;font-size:.82rem;font-weight:700;color:var(--verde)">📄 Lote 01 · Giro 02 — Macho Nelore</div>
   </header>
 
   <!-- PARÂMETROS -->
@@ -101,41 +98,43 @@
     <div class="card">
       <h2>Animal &amp; período <span style="font-weight:400;text-transform:none;letter-spacing:0">🔗 peso vinculado</span></h2>
       <div class="field"><label>Peso de entrada (vivo)<span class="hint" id="entradaHint">boi magro na chegada</span></label>
-        <div class="inp"><input type="number" id="pesoEntrada" value="381.6" step="5"><span class="prefix">kg</span></div></div>
+        <div class="inp"><input type="number" id="pesoEntrada" value="462" step="5"><span class="prefix">kg</span></div></div>
       <div class="field"><label>Peso de saída (vivo)<span class="hint">meta de venda</span></label>
-        <div class="inp"><input type="number" id="pesoSaida" value="540" step="5"><span class="prefix">kg</span></div></div>
+        <div class="inp"><input type="number" id="pesoSaida" value="533.9" step="5"><span class="prefix">kg</span></div></div>
       <div class="field"><label>Dias de confinamento</label>
-        <div class="inp"><input type="number" id="dias" value="99" step="1"><span class="prefix">dias</span></div></div>
+        <div class="inp"><input type="number" id="dias" value="48" step="1"><span class="prefix">dias</span></div></div>
       <div class="field"><label>Ganho de peso vivo / dia</label>
-        <div class="inp"><input type="number" id="ganhoDia" value="1.6" step="0.1"><span class="prefix">kg</span></div></div>
-      <div class="field"><label>Rendimento de carcaça<span class="hint" id="rendHint">aproveitamento no abate</span></label>
-        <div class="inp"><input type="number" id="rendimento" value="56" step="1"><span class="prefix">%</span></div></div>
+        <div class="inp"><input type="number" id="ganhoDia" value="1.5" step="0.1"><span class="prefix">kg</span></div></div>
+      <div class="field"><label>Rendimento de entrada (RC inicial)<span class="hint">o boi magro rende menos carcaça</span></label>
+        <div class="inp"><input type="number" id="rendEntrada" value="50" step="1"><span class="prefix">%</span></div></div>
+      <div class="field"><label>Rendimento de saída (carcaça)<span class="hint" id="rendHint">aproveitamento no abate</span></label>
+        <div class="inp"><input type="number" id="rendimento" value="54" step="1"><span class="prefix">%</span></div></div>
       <div class="field"><label>Mortalidade esperada<span class="hint">risco de perder o animal no ciclo</span></label>
-        <div class="inp"><input type="number" id="mortalidade" value="2" step="0.5"><span class="prefix">%</span></div></div>
+        <div class="inp"><input type="number" id="mortalidade" value="0" step="0.5"><span class="prefix">%</span></div></div>
     </div>
     <div class="card">
       <h2>Ração & eficiência <span style="font-weight:400;text-transform:none;letter-spacing:0">🔗 campos vinculados</span></h2>
       <div class="field"><label>Consumo de ração / dia<span class="hint">matéria seca</span></label>
-        <div class="inp"><input type="number" id="consumoDia" value="10" step="0.5"><span class="prefix">kg</span></div></div>
+        <div class="inp"><input type="number" id="consumoDia" value="10.231" step="0.5"><span class="prefix">kg</span></div></div>
       <div class="field"><label>Eficiência alimentar<span class="hint" id="eficHint">kg de ganho ÷ kg de ração</span></label>
-        <div class="inp"><input type="number" id="eficiencia" value="16" step="0.5"><span class="prefix">%</span></div></div>
+        <div class="inp"><input type="number" id="eficiencia" value="14.7" step="0.5"><span class="prefix">%</span></div></div>
       <div class="field"><label>Custo da ração</label>
-        <div class="inp"><span class="prefix">R$</span><input type="number" id="custoRacao" value="1.00" step="0.05"><span class="prefix">/kg</span></div></div>
+        <div class="inp"><span class="prefix">R$</span><input type="number" id="custoRacao" value="1.302" step="0.05"><span class="prefix">/kg</span></div></div>
       <div class="field"><label>Sanidade + mão de obra / dia<span class="hint">custos diretos com o animal</span></label>
-        <div class="inp"><span class="prefix">R$</span><input type="number" id="outrosDia" value="1.10" step="0.10"><span class="prefix">/dia</span></div></div>
+        <div class="inp"><span class="prefix">R$</span><input type="number" id="outrosDia" value="0" step="0.10"><span class="prefix">/dia</span></div></div>
       <div class="field"><label>Custo operacional / dia<span class="hint">energia, máquinas, manutenção, depreciação, admin</span></label>
-        <div class="inp"><span class="prefix">R$</span><input type="number" id="operDia" value="0.90" step="0.10"><span class="prefix">/dia</span></div></div>
+        <div class="inp"><span class="prefix">R$</span><input type="number" id="operDia" value="1.60" step="0.10"><span class="prefix">/dia</span></div></div>
       <div class="field"><label>Peso da arroba</label>
         <div class="inp"><input type="number" id="kgArroba" value="15" step="1"><span class="prefix">kg</span></div></div>
     </div>
     <div class="card">
       <h2>Compra & venda</h2>
       <div class="field"><label>Preço da @ na compra<span class="hint" id="agioHint">boi magro / reposição</span></label>
-        <div class="inp"><span class="prefix">R$</span><input type="number" id="precoCompra" value="340" step="5"></div></div>
+        <div class="inp"><span class="prefix">R$</span><input type="number" id="precoCompra" value="345" step="5"></div></div>
       <div class="field"><label>Preço da @ na venda<span class="hint">boi gordo</span></label>
-        <div class="inp"><span class="prefix">R$</span><input type="number" id="precoVenda" value="323" step="5"></div></div>
+        <div class="inp"><span class="prefix">R$</span><input type="number" id="precoVenda" value="330" step="5"></div></div>
       <div class="field"><label>Impostos sobre a venda<span class="hint">FUNRURAL retido pelo frigorífico (ICMS diferido)</span></label>
-        <div class="inp"><input type="number" id="impVenda" value="1.63" step="0.1"><span class="prefix">%</span></div></div>
+        <div class="inp"><input type="number" id="impVenda" value="1.45" step="0.1"><span class="prefix">%</span></div></div>
       <div class="field"><label>Arrobas na venda<span class="hint" id="arrVendaHint">carcaça = peso de saída × rendimento ÷ 15</span></label>
         <div class="inp"><span class="prefix" id="arrVendaTxt" style="font-weight:800;color:var(--verde);font-size:1rem">—</span></div></div>
     </div>
@@ -206,25 +205,6 @@
   </div>
   <div class="verdict" id="verdict">—</div>
 
-  <!-- NOTA DE MERCADO -->
-  <div class="mkt-note">
-    <b>📊 Padrão de mercado (junho/2026)</b> — números do índice ICAP/Ponta Agro e USP/Cepea que carreguei no preset:
-    <ul>
-      <li>Lucro reportado: <b>R$ 1.053/cabeça (Centro-Oeste)</b> e R$ 1.007 (Sudeste) — até R$ 1.118 mirando a China.</li>
-      <li>Diária: <b>R$ 11,79 a R$ 12,91</b> por cabeça/dia · ciclo médio de <b>~99 dias</b>, ~7,7 @ produzidas.</li>
-      <li><b>Custo operacional</b> (não-alimentar): ~<b>R$ 2,01/cabeça/dia</b> em 2025 (mão de obra, energia, combustível, manutenção, depreciação, sanidade, admin) — cerca de 16–20% da diária; o resto é ração.</li>
-      <li>Custo da @ produzida: R$ 186 (CO) a R$ 199 (SE) · arroba do boi gordo: R$ 323 a R$ 331.</li>
-      <li><b>Ágio da reposição:</b> a arroba do boi magro é mais cara que a do gordo (no preset: R$ 340 vs R$ 323, ~5%). É o fator que mais mexe na margem.</li>
-      <li>Zootécnico de bons confinamentos: ganho de <b>1,4 a 1,8 kg/dia</b>, conversão ~5,5–7:1.</li>
-    </ul>
-    <span style="color:var(--muted)">Fontes:
-      <a href="https://girodoboi.canalrural.com.br/pecuaria/custo-alimentar-recua-e-lucro-no-confinamento-segue-acima-de-r-1-mil-por-cabeca" target="_blank">Giro do Boi/ICAP</a> ·
-      <a href="https://farmnews.com.br/gestao/custo-de-producao-de-bovinos-confinados-estimulo-a-engorda-em-junho-de-2026/" target="_blank">FarmNews</a> ·
-      <a href="https://pontaagro.com/relacao-de-troca-boi-magro-boi-gordo/" target="_blank">Ponta Agro (relação de troca)</a>.
-      <b>Importante:</b> o lucro de R$ 1.053 do ICAP pressupõe reposição comprada barata (meses antes). Cobrando o boi magro caro de hoje, a sobra cai pra faixa de algumas centenas de reais por cabeça — e some se o ágio passar de ~10%.
-    </span>
-  </div>
-
   <div class="mkt-note" style="border-left-color:var(--azul)">
     <b style="color:var(--azul)">🧾 Impostos considerados</b> — agora os dois lados estão <b>líquidos</b>:
     <ul>
@@ -254,13 +234,7 @@ const fmtBRL = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BR
 const fmtN = (v,d=1) => new Intl.NumberFormat('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
 const fmtP = (v,d=2) => fmtN(v,d)+'%';
 const el = id => document.getElementById(id);
-const ids = ['pesoEntrada','pesoSaida','dias','ganhoDia','rendimento','mortalidade','consumoDia','eficiencia','custoRacao','outrosDia','operDia','precoVenda','impVenda','kgArroba','precoCompra','taxaApp','irApp'];
-
-const PRESETS = {
-  mercado:{pesoEntrada:381.6,pesoSaida:540,dias:99,ganhoDia:1.6,rendimento:56,mortalidade:2,consumoDia:10,eficiencia:16,custoRacao:1.00,outrosDia:1.10,operDia:0.90,precoVenda:323,impVenda:1.63,kgArroba:15,precoCompra:340},
-  meu:{pesoEntrada:360,pesoSaida:450,dias:90,ganhoDia:1,rendimento:57,mortalidade:0,consumoDia:8,eficiencia:12.5,custoRacao:1.35,outrosDia:0,operDia:0,precoVenda:320,impVenda:0,kgArroba:15,precoCompra:320}
-};
-function loadPreset(k){const p=PRESETS[k];for(const id in p){el(id).value=p[id];}calc();}
+const ids = ['pesoEntrada','pesoSaida','dias','ganhoDia','rendEntrada','rendimento','mortalidade','consumoDia','eficiencia','custoRacao','outrosDia','operDia','precoVenda','impVenda','kgArroba','precoCompra','taxaApp','irApp'];
 
 // campos correlacionados:
 //  (A) peso de saída = peso de entrada + ganho/dia × dias
@@ -285,14 +259,14 @@ function relink(changed){
 
 function calc(){
   const pesoSaida=+el('pesoSaida').value||0, dias=+el('dias').value||0, ganhoDia=+el('ganhoDia').value||0;
-  const rend=(+el('rendimento').value||0)/100, consumoDia=+el('consumoDia').value||0, custoRacao=+el('custoRacao').value||0;
+  const rend=(+el('rendimento').value||0)/100, rendEntrada=(+el('rendEntrada').value||0)/100, consumoDia=+el('consumoDia').value||0, custoRacao=+el('custoRacao').value||0;
   const outrosDia=+el('outrosDia').value||0, operDia=+el('operDia').value||0, precoVenda=+el('precoVenda').value||0, kgArroba=+el('kgArroba').value||15;
   const precoCompra=+el('precoCompra').value||0, taxaApp=(+el('taxaApp').value||0)/100;
   const mortalidade=(+el('mortalidade').value||0)/100, impVenda=(+el('impVenda').value||0)/100, irApp=(+el('irApp').value||0)/100;
 
   const pesoEntrada=+el('pesoEntrada').value||0;
   const ganhoTotal=pesoSaida-pesoEntrada;
-  const arrEntrada=(pesoEntrada*rend)/kgArroba;
+  const arrEntrada=(pesoEntrada*rendEntrada)/kgArroba;
   const arrSaida=(pesoSaida*rend)/kgArroba;
   const arrGanhas=arrSaida-arrEntrada;
 
@@ -323,7 +297,7 @@ function calc(){
   const compraEquilibrio=arrEntrada>0?(vendaLiquida-confin)/arrEntrada:0;
 
   el('rowCompra').textContent='− '+fmtBRL(compra);
-  el('rowCompraDesc').textContent=`${fmtN(pesoEntrada,0)} kg → ${fmtN(arrEntrada,2)} @ × ${fmtBRL(precoCompra)}`;
+  el('rowCompraDesc').textContent=`${fmtN(pesoEntrada,0)} kg × ${fmtN(rendEntrada*100,0)}% → ${fmtN(arrEntrada,2)} @ × ${fmtBRL(precoCompra)}`;
   el('rowRacao').textContent='− '+fmtBRL(racaoTotal);
   el('rowRacaoDesc').textContent=`${fmtN(consumoDia,1)} kg/dia × ${dias} dias × ${fmtBRL(custoRacao)}`;
   el('eficHint').textContent=`${fmtN(ganhoDia,2)} kg ganho ÷ ${fmtN(consumoDia,1)} kg ração · equivale a ${fmtN(eficiencia>0?1/eficiencia:0,1)}:1`;
