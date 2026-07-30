@@ -40,7 +40,13 @@
     border-radius:8px;padding:6px 8px;background:#fbfcfa;color:var(--dark);font-family:inherit}
   input[type=number]:focus{outline:none;border-color:var(--verde);background:#fff}
 
-  .section-title{font-size:.95rem;font-weight:800;margin:26px 0 12px;color:var(--dark)}
+  .section-title{font-size:.95rem;font-weight:800;margin:18px 0 10px;color:var(--dark)}
+  .mini-title{font-size:.82rem;font-weight:800;margin:2px 0 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .result-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start;margin-top:16px}
+  @media(max-width:820px){.result-grid{grid-template-columns:1fr}}
+  .kpis-col{display:grid;grid-template-columns:1fr;gap:12px}
+  .kpis-col .kpi .val{font-size:1.5rem}
+  .compact .row{padding:7px 16px;font-size:.88rem}
 
   .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
   @media(max-width:820px){.kpis{grid-template-columns:1fr}}
@@ -115,8 +121,10 @@
         <div class="inp"><input type="number" id="eficiencia" value="16" step="0.5"><span class="prefix">%</span></div></div>
       <div class="field"><label>Custo da ração</label>
         <div class="inp"><span class="prefix">R$</span><input type="number" id="custoRacao" value="1.00" step="0.05"><span class="prefix">/kg</span></div></div>
-      <div class="field"><label>Outros custos / dia<span class="hint">sanidade, mão de obra</span></label>
-        <div class="inp"><span class="prefix">R$</span><input type="number" id="outrosDia" value="2.90" step="0.10"><span class="prefix">/dia</span></div></div>
+      <div class="field"><label>Sanidade + mão de obra / dia<span class="hint">custos diretos com o animal</span></label>
+        <div class="inp"><span class="prefix">R$</span><input type="number" id="outrosDia" value="1.10" step="0.10"><span class="prefix">/dia</span></div></div>
+      <div class="field"><label>Custo operacional / dia<span class="hint">energia, máquinas, manutenção, depreciação, admin</span></label>
+        <div class="inp"><span class="prefix">R$</span><input type="number" id="operDia" value="0.90" step="0.10"><span class="prefix">/dia</span></div></div>
       <div class="field"><label>Peso da arroba</label>
         <div class="inp"><input type="number" id="kgArroba" value="15" step="1"><span class="prefix">kg</span></div></div>
     </div>
@@ -131,33 +139,38 @@
     </div>
   </div>
 
-  <!-- DRE -->
-  <div class="section-title">O que entra e o que sai (por cabeça)</div>
-  <div class="card breakdown">
-    <div class="row"><div>Compra do boi<span class="desc" id="rowCompraDesc"></span></div><div class="money neg" id="rowCompra">—</div></div>
-    <div class="row"><div>Ração no período<span class="desc" id="rowRacaoDesc"></span></div><div class="money neg" id="rowRacao">—</div></div>
-    <div class="row"><div>Outros custos<span class="desc" id="rowOutrosDesc"></span></div><div class="money neg" id="rowOutros">—</div></div>
-    <div class="row total" style="background:#f2ede6"><div>Custo total investido</div><div class="money neg" id="rowCustoTotal">—</div></div>
-    <div class="row"><div>Venda do boi gordo (bruta)<span class="desc" id="rowVendaDesc"></span></div><div class="money pos" id="rowVenda">—</div></div>
-    <div class="row"><div>Impostos na venda<span class="desc" id="rowImpDesc"></span></div><div class="money neg" id="rowImp">—</div></div>
-    <div class="row"><div>Perda esperada por mortalidade<span class="desc" id="rowMortDesc"></span></div><div class="money neg" id="rowMort">—</div></div>
-    <div class="row total" style="background:#eef3ea"><div>Venda líquida esperada</div><div class="money pos" id="rowVendaLiq">—</div></div>
-    <div class="row total"><div>Lucro líquido</div><div class="money" id="rowLucro">—</div></div>
-  </div>
-
-  <!-- KPIs -->
-  <div class="section-title">Retorno do gado</div>
-  <div class="kpis">
-    <div class="kpi"><div class="lbl">Lucro líquido</div><div class="val" id="kpiLucro">—</div><div class="desc" id="kpiLucroDesc"></div></div>
-    <div class="kpi"><div class="lbl">Lucro % no período</div><div class="val" id="kpiPct">—</div><div class="desc">líquido ÷ total investido</div></div>
-    <div class="kpi"><div class="lbl">Lucro % por mês</div><div class="val" id="kpiPctMes">—</div><div class="desc">equivalente composto</div></div>
+  <!-- DRE + RETORNO lado a lado -->
+  <div class="result-grid">
+    <div>
+      <div class="mini-title">O que entra e o que sai (por cabeça)</div>
+      <div class="card breakdown compact">
+        <div class="row"><div>Compra do boi<span class="desc" id="rowCompraDesc"></span></div><div class="money neg" id="rowCompra">—</div></div>
+        <div class="row"><div>Ração no período<span class="desc" id="rowRacaoDesc"></span></div><div class="money neg" id="rowRacao">—</div></div>
+        <div class="row"><div>Sanidade + mão de obra<span class="desc" id="rowOutrosDesc"></span></div><div class="money neg" id="rowOutros">—</div></div>
+        <div class="row"><div>Custo operacional<span class="desc" id="rowOperDesc"></span></div><div class="money neg" id="rowOper">—</div></div>
+        <div class="row total" style="background:#f2ede6"><div>Custo total investido</div><div class="money neg" id="rowCustoTotal">—</div></div>
+        <div class="row"><div>Venda do boi gordo (bruta)<span class="desc" id="rowVendaDesc"></span></div><div class="money pos" id="rowVenda">—</div></div>
+        <div class="row"><div>Impostos na venda<span class="desc" id="rowImpDesc"></span></div><div class="money neg" id="rowImp">—</div></div>
+        <div class="row"><div>Perda por mortalidade<span class="desc" id="rowMortDesc"></span></div><div class="money neg" id="rowMort">—</div></div>
+        <div class="row total" style="background:#eef3ea"><div>Venda líquida esperada</div><div class="money pos" id="rowVendaLiq">—</div></div>
+        <div class="row total"><div>Lucro líquido</div><div class="money" id="rowLucro">—</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="mini-title">Retorno do gado</div>
+      <div class="kpis-col">
+        <div class="kpi"><div class="lbl">Lucro líquido</div><div class="val" id="kpiLucro">—</div><div class="desc" id="kpiLucroDesc"></div></div>
+        <div class="kpi"><div class="lbl">Lucro % no período</div><div class="val" id="kpiPct">—</div><div class="desc">líquido ÷ total investido</div></div>
+        <div class="kpi"><div class="lbl">Lucro % por mês</div><div class="val" id="kpiPctMes">—</div><div class="desc">equivalente composto</div></div>
+      </div>
+    </div>
   </div>
 
   <!-- EXTRAS -->
   <div class="section-title">Indicadores de apoio</div>
   <div class="kpis">
     <div class="kpi"><div class="lbl">Custo da @ produzida</div><div class="val" id="kpiCustoArroba" style="font-size:1.3rem">—</div><div class="desc">confinamento ÷ arrobas ganhas</div></div>
-    <div class="kpi"><div class="lbl">Diária por cabeça</div><div class="val" id="kpiDiaria" style="font-size:1.3rem">—</div><div class="desc">ração + outros custos por dia</div></div>
+    <div class="kpi"><div class="lbl">Diária por cabeça</div><div class="val" id="kpiDiaria" style="font-size:1.3rem">—</div><div class="desc">ração + sanidade + operacional</div></div>
     <div class="kpi"><div class="lbl">Preço de compra de equilíbrio</div><div class="val" id="kpiBreakeven" style="font-size:1.3rem">—</div><div class="desc">@ máxima na compra p/ não dar prejuízo</div></div>
   </div>
 
@@ -197,6 +210,7 @@
     <ul>
       <li>Lucro reportado: <b>R$ 1.053/cabeça (Centro-Oeste)</b> e R$ 1.007 (Sudeste) — até R$ 1.118 mirando a China.</li>
       <li>Diária: <b>R$ 11,79 a R$ 12,91</b> por cabeça/dia · ciclo médio de <b>~99 dias</b>, ~7,7 @ produzidas.</li>
+      <li><b>Custo operacional</b> (não-alimentar): ~<b>R$ 2,01/cabeça/dia</b> em 2025 (mão de obra, energia, combustível, manutenção, depreciação, sanidade, admin) — cerca de 16–20% da diária; o resto é ração.</li>
       <li>Custo da @ produzida: R$ 186 (CO) a R$ 199 (SE) · arroba do boi gordo: R$ 323 a R$ 331.</li>
       <li><b>Ágio da reposição:</b> a arroba do boi magro é mais cara que a do gordo (no preset: R$ 340 vs R$ 323, ~5%). É o fator que mais mexe na margem.</li>
       <li>Zootécnico de bons confinamentos: ganho de <b>1,4 a 1,8 kg/dia</b>, conversão ~5,5–7:1.</li>
@@ -238,11 +252,11 @@ const fmtBRL = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BR
 const fmtN = (v,d=1) => new Intl.NumberFormat('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
 const fmtP = (v,d=2) => fmtN(v,d)+'%';
 const el = id => document.getElementById(id);
-const ids = ['pesoEntrada','pesoSaida','dias','ganhoDia','rendimento','mortalidade','consumoDia','eficiencia','custoRacao','outrosDia','precoVenda','impVenda','kgArroba','precoCompra','taxaApp','irApp'];
+const ids = ['pesoEntrada','pesoSaida','dias','ganhoDia','rendimento','mortalidade','consumoDia','eficiencia','custoRacao','outrosDia','operDia','precoVenda','impVenda','kgArroba','precoCompra','taxaApp','irApp'];
 
 const PRESETS = {
-  mercado:{pesoEntrada:381.6,pesoSaida:540,dias:99,ganhoDia:1.6,rendimento:56,mortalidade:2,consumoDia:10,eficiencia:16,custoRacao:1.00,outrosDia:2.90,precoVenda:323,impVenda:1.63,kgArroba:15,precoCompra:340},
-  meu:{pesoEntrada:360,pesoSaida:450,dias:90,ganhoDia:1,rendimento:57,mortalidade:0,consumoDia:8,eficiencia:12.5,custoRacao:1.35,outrosDia:0,precoVenda:320,impVenda:0,kgArroba:15,precoCompra:320}
+  mercado:{pesoEntrada:381.6,pesoSaida:540,dias:99,ganhoDia:1.6,rendimento:56,mortalidade:2,consumoDia:10,eficiencia:16,custoRacao:1.00,outrosDia:1.10,operDia:0.90,precoVenda:323,impVenda:1.63,kgArroba:15,precoCompra:340},
+  meu:{pesoEntrada:360,pesoSaida:450,dias:90,ganhoDia:1,rendimento:57,mortalidade:0,consumoDia:8,eficiencia:12.5,custoRacao:1.35,outrosDia:0,operDia:0,precoVenda:320,impVenda:0,kgArroba:15,precoCompra:320}
 };
 function loadPreset(k){const p=PRESETS[k];for(const id in p){el(id).value=p[id];}calc();}
 
@@ -270,7 +284,7 @@ function relink(changed){
 function calc(){
   const pesoSaida=+el('pesoSaida').value||0, dias=+el('dias').value||0, ganhoDia=+el('ganhoDia').value||0;
   const rend=(+el('rendimento').value||0)/100, consumoDia=+el('consumoDia').value||0, custoRacao=+el('custoRacao').value||0;
-  const outrosDia=+el('outrosDia').value||0, precoVenda=+el('precoVenda').value||0, kgArroba=+el('kgArroba').value||15;
+  const outrosDia=+el('outrosDia').value||0, operDia=+el('operDia').value||0, precoVenda=+el('precoVenda').value||0, kgArroba=+el('kgArroba').value||15;
   const precoCompra=+el('precoCompra').value||0, taxaApp=(+el('taxaApp').value||0)/100;
   const mortalidade=(+el('mortalidade').value||0)/100, impVenda=(+el('impVenda').value||0)/100, irApp=(+el('irApp').value||0)/100;
 
@@ -285,7 +299,8 @@ function calc(){
   const compra=arrEntrada*precoCompra;
   const racaoTotal=racaoKg*custoRacao;
   const outrosTotal=outrosDia*dias;
-  const confin=racaoTotal+outrosTotal;
+  const operTotal=operDia*dias;
+  const confin=racaoTotal+outrosTotal+operTotal;
   const custoTotal=compra+confin;
 
   const vendaBruta=arrSaida*precoVenda;
@@ -314,6 +329,8 @@ function calc(){
   el('rendHint').textContent=`abate: ${fmtN(pesoSaida,0)} kg vivo × ${fmtN(rend*100,0)}% = ${fmtN(pesoSaida*rend,0)} kg carcaça (${fmtN(arrSaida,2)} @)`;
   el('rowOutros').textContent='− '+fmtBRL(outrosTotal);
   el('rowOutrosDesc').textContent=`${fmtBRL(outrosDia)}/dia × ${dias} dias`;
+  el('rowOper').textContent='− '+fmtBRL(operTotal);
+  el('rowOperDesc').textContent=`${fmtBRL(operDia)}/dia × ${dias} dias`;
   el('rowCustoTotal').textContent=fmtBRL(custoTotal);
   el('rowVenda').textContent='+ '+fmtBRL(vendaBruta);
   el('rowVendaDesc').textContent=`${fmtN(pesoSaida,0)} kg → ${fmtN(arrSaida,2)} @ × ${fmtBRL(precoVenda)}`;
