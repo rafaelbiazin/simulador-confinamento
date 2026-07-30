@@ -1,354 +1,414 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Confinamento vs Aplicação — 1 cabeça</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BOIMAX</title>
+<meta name="theme-color" content="#04040A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Pixel&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2304040A'/%3E%3Cpath d='M6 22 L13 15 L18 19 L26 9' stroke='%2300F5D4' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='26' cy='9' r='3' fill='%23FF2E88'/%3E%3C/svg%3E">
 <style>
-  :root{
-    --verde:#2f7d4f;--verde-claro:#e8f3ec;--terra:#8a5a2b;--dark:#1e2419;
-    --muted:#6b7365;--bg:#f6f7f3;--card:#ffffff;--linha:#e4e7de;
-    --pos:#2f7d4f;--neg:#c0392b;--azul:#2e5aac;--azul-claro:#e9eef8;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--bg);color:var(--dark);line-height:1.5;padding:24px}
-  .wrap{max-width:980px;margin:0 auto}
-  header{margin-bottom:16px}
-  h1{font-size:1.5rem;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  h1 .emoji{font-size:1.6rem}
-  .sub{color:var(--muted);font-size:.92rem;margin-top:4px}
+:root{
+  --preto:#04040A;--painel:#0B0B16;--painel-2:#080810;
+  --linha:#1B1B33;--linha-forte:#2A2A4D;
+  --texto:#E9F6F3;--mudo:#93A8AC;
+  --aqua:#00F5D4;--laranja:#FF8A1E;--rosa:#FF2E88;
+  --g-aqua:0 0 14px rgba(0,245,212,.30);
+  --g-rosa:0 0 14px rgba(255,46,136,.30);
+  --g-laranja:0 0 14px rgba(255,138,30,.28);
+  --pix:"Geist Pixel",ui-monospace,Menlo,Consolas,monospace;
+  --raio:2px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--preto);color:var(--texto);font-family:var(--pix);font-size:15px;
+  line-height:1.5;letter-spacing:.01em;padding:0 18px 80px;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(0,245,212,.028) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,245,212,.028) 1px,transparent 1px);
+  background-size:56px 56px;
+  -webkit-mask-image:radial-gradient(120% 80% at 50% 0%,#000 0%,transparent 72%);
+  mask-image:radial-gradient(120% 80% at 50% 0%,#000 0%,transparent 72%)}
+body::after{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.05;
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,0) 0 3px,rgba(0,0,0,.55) 3px 4px)}
+.wrap{max-width:1000px;margin:0 auto;position:relative;z-index:1}
 
-  .presets{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 6px}
-  .presets button{border:1px solid var(--linha);background:#fff;color:var(--dark);font-family:inherit;
-    font-size:.86rem;font-weight:700;padding:9px 14px;border-radius:10px;cursor:pointer;transition:.15s}
-  .presets button:hover{border-color:var(--verde);background:var(--verde-claro)}
-  .presets button.mkt{background:var(--verde);color:#fff;border-color:var(--verde)}
-  .presets button.mkt:hover{background:#276a42}
+/* topo com o boi girando (no lugar da moeda) */
+.topo{display:flex;flex-direction:column;align-items:center;text-align:center;
+  padding:34px 0 20px;border-bottom:1px solid var(--linha);position:relative;overflow:hidden}
+.boi-palco{display:flex;flex-direction:column;align-items:center;position:relative}
+.boi{width:150px;height:auto;animation:flutua 2.6s ease-in-out infinite;position:relative;z-index:2}
 
-  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
-  @media(max-width:820px){.grid3{grid-template-columns:1fr}}
-  .card{background:var(--card);border:1px solid var(--linha);border-radius:14px;padding:18px 20px}
-  .card h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:14px;font-weight:700}
-  .field{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed var(--linha)}
-  .field:last-child{border-bottom:none}
-  .field label{font-size:.9rem}
-  .field .hint{display:block;font-size:.72rem;color:var(--muted)}
-  .field .inp{display:flex;align-items:center;gap:4px}
-  .field .prefix{color:var(--muted);font-size:.85rem}
-  input[type=number]{width:88px;text-align:right;font-size:.95rem;font-weight:600;border:1px solid var(--linha);
-    border-radius:8px;padding:6px 8px;background:#fbfcfa;color:var(--dark);font-family:inherit}
-  input[type=number]:focus{outline:none;border-color:var(--verde);background:#fff}
+/* flashes de velocidade passando atrás do boi (efeito de corrida) */
+.boi-flash{position:absolute;top:8%;left:50%;width:280px;height:84%;transform:translateX(-50%);
+  z-index:1;pointer-events:none;overflow:hidden}
+.boi-flash i{position:absolute;right:-40%;height:3px;border-radius:3px;filter:blur(.6px);opacity:.85;
+  background:linear-gradient(90deg,transparent,var(--laranja),#fff,transparent);
+  animation:zunido .55s linear infinite}
+.boi-flash i:nth-child(1){top:14%;width:46%;animation-duration:.5s;animation-delay:0s}
+.boi-flash i:nth-child(2){top:26%;width:64%;animation-duration:.62s;animation-delay:.08s;background:linear-gradient(90deg,transparent,var(--aqua),#fff,transparent)}
+.boi-flash i:nth-child(3){top:38%;width:40%;animation-duration:.44s;animation-delay:.16s}
+.boi-flash i:nth-child(4){top:50%;width:72%;animation-duration:.7s;animation-delay:.02s;background:linear-gradient(90deg,transparent,var(--rosa),#fff,transparent)}
+.boi-flash i:nth-child(5){top:60%;width:50%;animation-duration:.52s;animation-delay:.22s}
+.boi-flash i:nth-child(6){top:72%;width:60%;animation-duration:.6s;animation-delay:.12s;background:linear-gradient(90deg,transparent,var(--aqua),#fff,transparent)}
+.boi-flash i:nth-child(7){top:84%;width:38%;animation-duration:.48s;animation-delay:.3s}
+.boi-flash i:nth-child(8){top:20%;width:34%;animation-duration:.5s;animation-delay:.36s;background:linear-gradient(90deg,transparent,var(--rosa),#fff,transparent)}
+@keyframes zunido{0%{right:-45%;opacity:0}12%{opacity:.9}100%{right:120%;opacity:0}}
 
-  .section-title{font-size:.95rem;font-weight:800;margin:18px 0 10px;color:var(--dark)}
-  .mini-title{font-size:.82rem;font-weight:800;margin:2px 0 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-  .result-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start;margin-top:16px}
-  @media(max-width:820px){.result-grid{grid-template-columns:1fr}}
-  .kpis-col{display:grid;grid-template-columns:1fr;gap:12px}
-  .kpis-col .kpi .val{font-size:1.5rem}
-  .compact .row{padding:7px 16px;font-size:.88rem}
+/* raio anamórfico varrendo o topo (uma vez, ao abrir) */
+.raio{position:absolute;top:0;left:-40%;height:100%;width:36%;z-index:3;pointer-events:none;
+  background:linear-gradient(102deg,transparent 0%,rgba(0,245,212,.5) 44%,#ffffff 50%,rgba(255,46,136,.5) 56%,transparent 100%);
+  filter:blur(1px);animation:varrer 1s cubic-bezier(.18,.72,.28,1) .15s both}
+.raio::after{content:"";position:absolute;top:0;left:46%;width:8%;height:100%;background:#fff;filter:blur(7px);opacity:.5}
+@keyframes varrer{to{left:120%}}
 
-  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-  @media(max-width:820px){.kpis{grid-template-columns:1fr}}
-  .kpi{background:var(--card);border:1px solid var(--linha);border-radius:14px;padding:16px 18px}
-  .kpi .lbl{font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
-  .kpi .val{font-size:1.6rem;font-weight:800;margin-top:6px}
-  .kpi .desc{font-size:.78rem;color:var(--muted);margin-top:2px}
+/* letras do nome acendendo como neon */
+.marca .ch{display:inline-block;opacity:1;animation:acende .55s ease-out both}
+@keyframes acende{0%{opacity:0;filter:brightness(7) blur(3px)}
+  16%{opacity:1;filter:brightness(7) blur(0) drop-shadow(0 0 12px #fff)}
+  55%{opacity:1;filter:brightness(2) drop-shadow(0 0 7px var(--aqua))}
+  100%{opacity:1;filter:none}}
 
-  .breakdown{padding:0;margin-top:18px}
-  .row{display:flex;justify-content:space-between;padding:11px 20px;font-size:.94rem;border-bottom:1px solid var(--linha)}
-  .row:last-child{border-bottom:none}
-  .row .desc{color:var(--muted);font-size:.76rem;display:block}
-  .row.total{font-weight:800;background:var(--verde-claro)}
-  .row .money{font-variant-numeric:tabular-nums;font-weight:700}
-  .pos{color:var(--pos)}.neg{color:var(--neg)}.azul{color:var(--azul)}
+/* revelação com flash por card ao rolar (igual ao rendimentos) — só com JS; sem JS os cards ficam visíveis */
+.rev{position:relative}
+html.animar .rev{opacity:0}
+html.animar .rev.vis{animation:estouro .7s ease-out forwards}
+@keyframes estouro{0%{opacity:0;filter:brightness(5) saturate(0) blur(2px)}
+  10%{opacity:1;filter:brightness(6) saturate(0) blur(1px)}
+  30%{opacity:1;filter:brightness(2.1) saturate(.7) blur(0)}
+  100%{opacity:1;filter:none}}
+.raiando{overflow:hidden}
+.rvsweep{position:absolute;top:0;left:-34%;height:100%;width:30%;pointer-events:none;z-index:6;
+  background:linear-gradient(102deg,transparent 0%,rgba(255,255,255,.05) 26%,rgba(0,245,212,.55) 45%,#ffffff 50%,rgba(255,46,136,.55) 55%,rgba(255,255,255,.05) 74%,transparent 100%);
+  filter:blur(1px);animation:varrecard .78s cubic-bezier(.18,.72,.28,1) forwards}
+.rvsweep::before{content:"";position:absolute;top:50%;left:-320%;width:740%;height:2px;transform:translateY(-50%);
+  filter:blur(1.6px);background:linear-gradient(90deg,transparent,rgba(0,245,212,.85),#fff,rgba(255,46,136,.85),transparent)}
+.rvsweep::after{content:"";position:absolute;top:0;left:46%;width:8%;height:100%;background:#fff;filter:blur(7px);opacity:.5}
+@keyframes varrecard{to{left:112%}}
+@media(prefers-reduced-motion:reduce){html.animar .rev{opacity:1;animation:none;filter:none}}
+.boi img{width:100%;height:auto;display:block;image-rendering:pixelated;filter:drop-shadow(0 0 12px rgba(255,138,30,.35))}
+@keyframes flutua{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.boi-sombra{width:64px;height:7px;margin-top:2px;background:rgba(255,138,30,.22);border-radius:50%;
+  filter:blur(2px);animation:sombra 2.6s ease-in-out infinite}
+@keyframes sombra{0%,100%{width:64px;opacity:.5}50%{width:50px;opacity:.32}}
+.marca{font-family:var(--pix);font-size:clamp(20px,4.4vw,30px);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--aqua);text-shadow:var(--g-aqua);margin-top:18px}
+.marca-sub{font-size:13px;color:var(--mudo);margin-top:8px;letter-spacing:.04em}
+.frase{margin-top:16px;max-width:640px;font-size:14px;line-height:1.55;color:#cbd8d5;letter-spacing:.015em;
+  border-top:1px solid var(--linha);border-bottom:1px solid var(--linha);padding:12px 6px}
+.frase::before{content:"❯ ";color:var(--aqua);text-shadow:var(--g-aqua)}
+.selo{margin-top:14px;font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--laranja);
+  border:1px solid var(--linha-forte);padding:6px 12px;display:inline-flex;align-items:center;gap:8px}
+.selo .pt{width:7px;height:7px;background:var(--rosa);box-shadow:var(--g-rosa);animation:pisca 1.6s steps(1) infinite}
+@keyframes pisca{0%,60%{opacity:1}61%,100%{opacity:.15}}
 
-  .versus{display:grid;grid-template-columns:1fr;gap:12px;align-items:stretch;margin-top:6px}
-  .vs-col{padding:20px;border-radius:14px;border:2px solid var(--linha)}
-  .vs-gado{background:var(--verde-claro);border-color:var(--verde)}
-  .vs-app{background:var(--azul-claro);border-color:var(--azul)}
-  .vs-col .vt{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
-  .vs-col .vbig{font-size:2rem;font-weight:800;margin:8px 0 2px}
-  .vs-col .vsmall{font-size:.85rem;color:var(--muted)}
-  .vs-mid{display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--muted);padding:4px}
-  .verdict{margin-top:16px;padding:16px 20px;border-radius:14px;font-weight:700;font-size:1rem;text-align:center}
-  .verdict.gado{background:var(--verde);color:#fff}
-  .verdict.app{background:var(--azul);color:#fff}
+.section-title{font-family:var(--pix);font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--aqua);opacity:.9;margin:26px 0 10px}
+.section-title small{color:var(--mudo);text-transform:none;letter-spacing:.02em;font-size:11px;margin-left:8px}
 
-  .mkt-note{background:#fff;border:1px solid var(--linha);border-left:4px solid var(--verde);
-    border-radius:10px;padding:14px 18px;margin-top:16px;font-size:.84rem;color:var(--dark)}
-  .mkt-note b{color:var(--verde)}
-  .mkt-note ul{margin:8px 0 0 18px;color:var(--muted)}
-  .mkt-note li{margin:2px 0}
-  .mkt-note a{color:var(--azul);text-decoration:none}
-  .foot{font-size:.78rem;color:var(--muted);margin-top:18px;line-height:1.55}
-  .tag{display:inline-block;background:var(--verde-claro);color:var(--verde);font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:820px){.grid3{grid-template-columns:1fr}}
+.card{background:linear-gradient(180deg,rgba(0,245,212,.03),rgba(0,0,0,0));
+  border:1px solid var(--linha-forte);border-radius:var(--raio);padding:14px 16px;margin-top:14px}
+.card h2{font-family:var(--pix);font-size:12px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--laranja);margin-bottom:12px}
+.card h2 .lk{color:var(--aqua);font-size:10px;letter-spacing:.05em}
+.field{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;
+  border-bottom:1px solid var(--linha)}
+.field:last-child{border-bottom:none}
+.field label{font-size:12.5px;color:var(--texto);letter-spacing:.02em}
+.field.calc label{color:var(--mudo)}
+.field .hint{display:block;font-size:10px;color:var(--mudo);letter-spacing:.04em;text-transform:uppercase;margin-top:2px}
+.field .inp{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.field .prefix{color:var(--mudo);font-size:11px;letter-spacing:.06em}
+input{font-family:var(--pix);font-size:13px;color:var(--aqua);background:var(--painel-2);
+  border:1px solid var(--linha-forte);border-radius:var(--raio);padding:6px 8px;letter-spacing:.03em}
+input[type=number]{width:90px;text-align:right}
+input[type=text]{width:150px;text-align:right;color:var(--texto)}
+input[type=date]{width:150px;color:var(--texto)}
+input:focus{outline:none;border-color:var(--aqua);box-shadow:0 0 10px rgba(0,245,212,.2)}
+input.link{border-color:rgba(0,245,212,.4)}
+.ro{font-weight:400;color:var(--aqua);font-size:13.5px;text-shadow:var(--g-aqua);letter-spacing:.04em}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+@media(max-width:820px){.kpis{grid-template-columns:1fr 1fr}}
+.kpi{background:var(--painel);border:1px solid var(--linha);border-radius:var(--raio);padding:13px 14px}
+.kpi .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--mudo);line-height:1.3}
+.kpi .val{font-family:var(--pix);font-size:1.3rem;margin-top:6px;color:var(--aqua);text-shadow:var(--g-aqua);letter-spacing:.02em}
+.kpi .val.lr{color:var(--laranja);text-shadow:var(--g-laranja)}
+.kpi .val.rs{color:var(--rosa);text-shadow:var(--g-rosa)}
+.kpi .u{font-size:10px;color:var(--mudo);margin-top:3px;letter-spacing:.05em;text-transform:uppercase}
+
+.result-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;align-items:start}
+@media(max-width:820px){.result-grid{grid-template-columns:1fr}}
+.breakdown{background:var(--painel);border:1px solid var(--linha-forte);border-radius:var(--raio);padding:0;margin-top:12px}
+.row{display:flex;justify-content:space-between;gap:10px;padding:9px 16px;font-size:12.5px;border-bottom:1px solid var(--linha)}
+.row:last-child{border-bottom:none}
+.row .desc{color:var(--mudo);font-size:10px;display:block;letter-spacing:.03em;text-transform:uppercase;margin-top:2px}
+.row.total{background:rgba(0,245,212,.05)}
+.row .money{font-family:var(--pix);font-weight:400;letter-spacing:.03em;white-space:nowrap}
+.pos{color:var(--aqua);text-shadow:var(--g-aqua)}
+.neg{color:var(--rosa);text-shadow:var(--g-rosa)}
+.row.total .money{font-size:14px}
+
+.big{border:1px solid var(--aqua);border-radius:var(--raio);padding:20px;text-align:center;
+  background:linear-gradient(180deg,rgba(0,245,212,.06),rgba(0,0,0,0));box-shadow:inset 0 0 40px rgba(0,245,212,.06)}
+.big .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--mudo)}
+.big .v{font-family:var(--pix);font-size:2.1rem;margin-top:8px;color:var(--aqua);text-shadow:var(--g-aqua);letter-spacing:.02em}
+.big .v.neg{color:var(--rosa);text-shadow:var(--g-rosa)}
+.big .s{font-size:11px;color:var(--mudo);margin-top:6px;letter-spacing:.05em;text-transform:uppercase}
+
+.foot{font-size:10.5px;color:var(--mudo);margin-top:18px;line-height:1.6;letter-spacing:.03em}
+:focus-visible{outline:1px solid var(--aqua);outline-offset:3px}
 </style>
+<script>try{if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches))document.documentElement.classList.add('animar');}catch(e){}</script>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1><span class="emoji">🐂</span> Confinamento vs Aplicação <span class="tag">1 cabeça · MVP</span></h1>
-    <div class="sub">Compra do boi + confinamento × venda no boi gordo. E no fim: compensa mais que deixar o dinheiro rendendo?</div>
-    <div style="margin-top:10px;font-size:.82rem;font-weight:700;color:var(--verde)">📄 Lote 01 · Giro 02 — Macho Nelore</div>
+  <header class="topo">
+    <div class="raio"></div>
+    <div class="boi-palco">
+      <div class="boi-flash"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="boi"><img src="data:image/gif;base64,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" alt="Boi"></div>
+      <div class="boi-sombra"></div>
+    </div>
+    <div class="marca" aria-label="BOIMAX"><span class="ch" style="animation-delay:.05s">B</span><span class="ch" style="animation-delay:.13s">O</span><span class="ch" style="animation-delay:.21s">I</span><span class="ch" style="animation-delay:.29s">M</span><span class="ch" style="animation-delay:.37s">A</span><span class="ch" style="animation-delay:.45s">X</span></div>
+    <div class="marca-sub">Fechamento de lote — desempenho, custos e resultado operacional</div>
+    <div class="frase" id="frase">Seu boi rende mais que o dinheiro parado, ou você só está pagando pra trabalhar?</div>
+    <div class="selo"><span class="pt"></span> <span id="seloTxt">Lote 01 - Giro 02 — Macho Nelore</span></div>
   </header>
 
-  <!-- PARÂMETROS -->
+  <!-- IDENTIFICAÇÃO -->
+  <div class="card rev">
+    <h2>Identificação do lote</h2>
+    <div class="grid3" style="gap:0 24px">
+      <div class="field"><label>Lote</label><div class="inp"><input type="text" id="lote" value="Lote 01 - Giro 02"></div></div>
+      <div class="field"><label>Categoria / Sexo</label><div class="inp"><input type="text" id="categoria" value="Macho Nelore"></div></div>
+      <div class="field"><label>Cabeças</label><div class="inp"><input type="number" id="cabecas" value="1" step="1"></div></div>
+      <div class="field"><label>Data de entrada</label><div class="inp"><input type="date" id="dataEntrada" value="2026-06-10"></div></div>
+      <div class="field"><label>Data de saída</label><div class="inp"><input type="date" id="dataSaida" value="2026-07-28"></div></div>
+      <div class="field"><label>Dias de confinamento<span class="hint">na mão ou pelas datas — ligado</span></label><div class="inp"><input type="number" id="dias" value="48" step="1" class="link"><span class="prefix">dias</span></div></div>
+    </div>
+  </div>
+
+  <!-- ENTRADAS -->
   <div class="grid3">
-    <div class="card">
-      <h2>Animal &amp; período <span style="font-weight:400;text-transform:none;letter-spacing:0">🔗 peso vinculado</span></h2>
-      <div class="field"><label>Peso de entrada (vivo)<span class="hint" id="entradaHint">boi magro na chegada</span></label>
-        <div class="inp"><input type="number" id="pesoEntrada" value="462" step="5"><span class="prefix">kg</span></div></div>
-      <div class="field"><label>Peso de saída (vivo)<span class="hint">meta de venda</span></label>
-        <div class="inp"><input type="number" id="pesoSaida" value="533.9" step="5"><span class="prefix">kg</span></div></div>
-      <div class="field"><label>Dias de confinamento</label>
-        <div class="inp"><input type="number" id="dias" value="48" step="1"><span class="prefix">dias</span></div></div>
-      <div class="field"><label>Ganho de peso vivo / dia</label>
-        <div class="inp"><input type="number" id="ganhoDia" value="1.5" step="0.1"><span class="prefix">kg</span></div></div>
-      <div class="field"><label>Rendimento de entrada (RC inicial)<span class="hint">o boi magro rende menos carcaça</span></label>
-        <div class="inp"><input type="number" id="rendEntrada" value="50" step="1"><span class="prefix">%</span></div></div>
-      <div class="field"><label>Rendimento de saída (carcaça)<span class="hint" id="rendHint">aproveitamento no abate</span></label>
-        <div class="inp"><input type="number" id="rendimento" value="54" step="1"><span class="prefix">%</span></div></div>
-      <div class="field"><label>Mortalidade esperada<span class="hint">risco de perder o animal no ciclo</span></label>
-        <div class="inp"><input type="number" id="mortalidade" value="0" step="0.5"><span class="prefix">%</span></div></div>
+    <div class="card rev">
+      <h2>Pesos & desempenho <span class="lk">🔗 GMD ligado</span></h2>
+      <div class="field"><label>Peso de entrada</label><div class="inp"><input type="number" id="pesoEntrada" value="461.9" step="0.1" class="link"><span class="prefix">kg</span></div></div>
+      <div class="field"><label>Peso de saída</label><div class="inp"><input type="number" id="pesoSaida" value="533.9" step="0.1" class="link"><span class="prefix">kg</span></div></div>
+      <div class="field"><label>GMD<span class="hint">ganho / dia — ligado aos pesos e dias</span></label><div class="inp"><input type="number" id="gmd" value="1.500" step="0.01" class="link"><span class="prefix">kg/d</span></div></div>
+      <div class="field calc"><label>Ganho total<span class="hint">saída − entrada</span></label><div class="inp"><span class="ro" id="ganhoTxt">72,0 kg</span></div></div>
+      <div class="field"><label>RC % inicial<span class="hint">rendimento do boi magro</span></label><div class="inp"><input type="number" id="rcInicial" value="50" step="0.5"><span class="prefix">%</span></div></div>
+      <div class="field"><label>Rendimento de carcaça<span class="hint">no abate (saída)</span></label><div class="inp"><input type="number" id="rendCarcaca" value="54" step="0.5"><span class="prefix">%</span></div></div>
     </div>
-    <div class="card">
-      <h2>Ração & eficiência <span style="font-weight:400;text-transform:none;letter-spacing:0">🔗 campos vinculados</span></h2>
-      <div class="field"><label>Consumo de ração / dia<span class="hint">matéria seca</span></label>
-        <div class="inp"><input type="number" id="consumoDia" value="10.231" step="0.5"><span class="prefix">kg</span></div></div>
-      <div class="field"><label>Eficiência alimentar<span class="hint" id="eficHint">kg de ganho ÷ kg de ração</span></label>
-        <div class="inp"><input type="number" id="eficiencia" value="14.7" step="0.5"><span class="prefix">%</span></div></div>
-      <div class="field"><label>Custo da ração</label>
-        <div class="inp"><span class="prefix">R$</span><input type="number" id="custoRacao" value="1.302" step="0.05"><span class="prefix">/kg</span></div></div>
-      <div class="field"><label>Sanidade + mão de obra / dia<span class="hint">custos diretos com o animal</span></label>
-        <div class="inp"><span class="prefix">R$</span><input type="number" id="outrosDia" value="0" step="0.10"><span class="prefix">/dia</span></div></div>
-      <div class="field"><label>Custo operacional / dia<span class="hint">energia, máquinas, manutenção, depreciação, admin</span></label>
-        <div class="inp"><span class="prefix">R$</span><input type="number" id="operDia" value="1.60" step="0.10"><span class="prefix">/dia</span></div></div>
-      <div class="field"><label>Peso da arroba</label>
-        <div class="inp"><input type="number" id="kgArroba" value="15" step="1"><span class="prefix">kg</span></div></div>
+    <div class="card rev">
+      <h2>Consumo & ração <span class="lk">🔗 custo ligado</span></h2>
+      <div class="field"><label>Consumo de ração / dia<span class="hint">matéria seca — base dos indicadores</span></label><div class="inp"><input type="number" id="consumo" value="10.231" step="0.1" class="link"><span class="prefix">kg</span></div></div>
+      <div class="field"><label>Eficiência alimentar<span class="hint">ganho ÷ consumo — ligado ao consumo e ao GMD</span></label><div class="inp"><input type="number" id="eficAlim" value="14.66" step="0.1" class="link"><span class="prefix">%</span></div></div>
+      <div class="field"><label>Custo do kg de ração</label><div class="inp"><span class="prefix">R$</span><input type="number" id="custoKgRacao" value="1.302" step="0.001"><span class="prefix">/kg</span></div></div>
+      <div class="field calc"><label>Custo alimentar diário<span class="hint">custo/kg × consumo</span></label><div class="inp"><span class="ro" id="custoAlimTxt">R$ 13,32/dia</span></div></div>
+      <div class="field"><label>Peso da arroba</label><div class="inp"><input type="number" id="kgArroba" value="15" step="1"><span class="prefix">kg</span></div></div>
+      <div class="field calc"><label>Consumo total<span class="hint">consumo × dias</span></label><div class="inp"><span class="ro" id="consTotTxt">491 kg</span></div></div>
     </div>
-    <div class="card">
-      <h2>Compra & venda</h2>
-      <div class="field"><label>Preço da @ na compra<span class="hint" id="agioHint">boi magro / reposição</span></label>
-        <div class="inp"><span class="prefix">R$</span><input type="number" id="precoCompra" value="345" step="5"></div></div>
-      <div class="field"><label>Preço da @ na venda<span class="hint">boi gordo</span></label>
-        <div class="inp"><span class="prefix">R$</span><input type="number" id="precoVenda" value="330" step="5"></div></div>
-      <div class="field"><label>Impostos sobre a venda<span class="hint">FUNRURAL retido pelo frigorífico (ICMS diferido)</span></label>
-        <div class="inp"><input type="number" id="impVenda" value="1.45" step="0.1"><span class="prefix">%</span></div></div>
-      <div class="field"><label>Arrobas na venda<span class="hint" id="arrVendaHint">carcaça = peso de saída × rendimento ÷ 15</span></label>
-        <div class="inp"><span class="prefix" id="arrVendaTxt" style="font-weight:800;color:var(--verde);font-size:1rem">—</span></div></div>
+    <div class="card rev">
+      <h2>Custos & preços</h2>
+      <div class="field"><label>Custo operacional diário</label><div class="inp"><span class="prefix">R$</span><input type="number" id="custoOperacionalDia" value="1.60" step="0.01"><span class="prefix">/dia</span></div></div>
+      <div class="field"><label>Impostos gerais + GTA<span class="hint">valor fixo por cabeça</span></label><div class="inp"><span class="prefix">R$</span><input type="number" id="impostosGTA" value="9.33" step="0.01"></div></div>
+      <div class="field"><label>Funrural</label><div class="inp"><input type="number" id="funrural" value="1.3" step="0.1"><span class="prefix">%</span></div></div>
+      <div class="field"><label>Preço arroba entrada</label><div class="inp"><span class="prefix">R$</span><input type="number" id="precoArrobaEntrada" value="345" step="1"></div></div>
+      <div class="field"><label>Preço arroba de saída</label><div class="inp"><span class="prefix">R$</span><input type="number" id="precoArrobaSaida" value="330" step="1"></div></div>
     </div>
   </div>
 
-  <!-- DRE + RETORNO lado a lado -->
+  <!-- INDICADORES -->
+  <div class="section-title">Indicadores do lote <small>tudo calculado ao vivo — mexa em qualquer campo</small></div>
+  <div class="kpis rev">
+    <div class="kpi"><div class="lbl">GMD carcaça</div><div class="val" id="kGmdC">1,195</div><div class="u">kg/dia carcaça</div></div>
+    <div class="kpi"><div class="lbl">Peso frigorífico</div><div class="val lr" id="kFrig">288,31</div><div class="u">kg de carcaça</div></div>
+    <div class="kpi"><div class="lbl">Arroba na entrada</div><div class="val" id="kArrE">15,40 @</div><div class="u">@ carcaça (RC inicial)</div></div>
+    <div class="kpi"><div class="lbl">Arroba na saída</div><div class="val" id="kArrS">19,22 @</div><div class="u">@ carcaça (frigorífico)</div></div>
+    <div class="kpi"><div class="lbl">Arroba produzida</div><div class="val lr" id="kArrProd">3,82 @</div><div class="u">@ de ganho</div></div>
+    <div class="kpi"><div class="lbl">Consumo MS %PV</div><div class="val" id="kConsPV">2,05%</div><div class="u">do peso vivo</div></div>
+    <div class="kpi"><div class="lbl">Eficiência biológica</div><div class="val" id="kEfBio">128</div><div class="u">kg de MS / @</div></div>
+    <div class="kpi"><div class="lbl">Custo diário total</div><div class="val rs" id="kDiaria">R$ 14,92</div><div class="u">alimentar + operac.</div></div>
+    <div class="kpi"><div class="lbl">Custo da @ produzida</div><div class="val rs" id="kCustoArr">R$ 187,29</div><div class="u">confinamento ÷ @</div></div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="section-title">Fechamento por cabeça</div>
   <div class="result-grid">
-    <div>
-      <div class="mini-title">O que entra e o que sai (por cabeça)</div>
-      <div class="card breakdown compact">
-        <div class="row"><div>Compra do boi<span class="desc" id="rowCompraDesc"></span></div><div class="money neg" id="rowCompra">—</div></div>
-        <div class="row"><div>Ração no período<span class="desc" id="rowRacaoDesc"></span></div><div class="money neg" id="rowRacao">—</div></div>
-        <div class="row"><div>Sanidade + mão de obra<span class="desc" id="rowOutrosDesc"></span></div><div class="money neg" id="rowOutros">—</div></div>
-        <div class="row"><div>Custo operacional<span class="desc" id="rowOperDesc"></span></div><div class="money neg" id="rowOper">—</div></div>
-        <div class="row total" style="background:#f2ede6"><div>Custo total investido</div><div class="money neg" id="rowCustoTotal">—</div></div>
-        <div class="row"><div>Venda do boi gordo (bruta)<span class="desc" id="rowVendaDesc"></span></div><div class="money pos" id="rowVenda">—</div></div>
-        <div class="row"><div>Impostos na venda<span class="desc" id="rowImpDesc"></span></div><div class="money neg" id="rowImp">—</div></div>
-        <div class="row"><div>Perda por mortalidade<span class="desc" id="rowMortDesc"></span></div><div class="money neg" id="rowMort">—</div></div>
-        <div class="row total" style="background:#eef3ea"><div>Venda líquida esperada</div><div class="money pos" id="rowVendaLiq">—</div></div>
-        <div class="row total"><div>Lucro líquido</div><div class="money" id="rowLucro">—</div></div>
-      </div>
+    <div class="breakdown rev">
+      <div class="row"><div>Compra do boi<span class="desc" id="rCompraD">462 kg × 50% → 15,40 @ × R$ 345,00</span></div><div class="money neg" id="rCompra">− R$ 5.311,85</div></div>
+      <div class="row"><div>Custo de confinamento<span class="desc" id="rConfD">R$ 14,92/dia × 48 dias</span></div><div class="money neg" id="rConf">− R$ 716,16</div></div>
+      <div class="row"><div>Impostos gerais + GTA</div><div class="money neg" id="rImpGTA">− R$ 9,33</div></div>
+      <div class="row"><div>Funrural<span class="desc" id="rFunD">1,30% da receita</span></div><div class="money neg" id="rFun">− R$ 82,46</div></div>
+      <div class="row total"><div>Custo total</div><div class="money neg" id="rCustoTotal">R$ 6.119,80</div></div>
+      <div class="row"><div>Receita<span class="desc" id="rRecD">534 kg × 54% → 19,22 @ × R$ 330,00</span></div><div class="money pos" id="rReceita">+ R$ 6.342,73</div></div>
+      <div class="row total"><div>Resultado operacional</div><div class="money" id="rResultado">R$ 222,94</div></div>
     </div>
-    <div>
-      <div class="mini-title">Retorno do gado</div>
-      <div class="kpis-col">
-        <div class="kpi"><div class="lbl">Lucro líquido</div><div class="val" id="kpiLucro">—</div><div class="desc" id="kpiLucroDesc"></div></div>
-        <div class="kpi"><div class="lbl">Lucro % no período</div><div class="val" id="kpiPct">—</div><div class="desc">líquido ÷ total investido</div></div>
-        <div class="kpi"><div class="lbl">Lucro % por mês</div><div class="val" id="kpiPctMes">—</div><div class="desc">equivalente composto</div></div>
+    <div class="rev">
+      <div class="big">
+        <div class="lbl">Resultado operacional</div>
+        <div class="v" id="bResultado">R$ 222,94</div>
+        <div class="s" id="bResultadoS">em 48 dias · por cabeça</div>
+      </div>
+      <div class="kpis" style="grid-template-columns:1fr 1fr;margin-top:12px">
+        <div class="kpi"><div class="lbl">Retorno do investimento</div><div class="val" id="kRetTot">3,64%</div><div class="u">no período</div></div>
+        <div class="kpi"><div class="lbl">Retorno ao mês</div><div class="val" id="kRetMes">2,31%</div><div class="u">equivalente</div></div>
       </div>
     </div>
   </div>
 
-  <!-- EXTRAS -->
-  <div class="section-title">Indicadores de apoio</div>
-  <div class="kpis">
-    <div class="kpi"><div class="lbl">Custo da @ produzida</div><div class="val" id="kpiCustoArroba" style="font-size:1.3rem">—</div><div class="desc">confinamento ÷ arrobas ganhas</div></div>
-    <div class="kpi"><div class="lbl">Diária por cabeça</div><div class="val" id="kpiDiaria" style="font-size:1.3rem">—</div><div class="desc">ração + sanidade + operacional</div></div>
-    <div class="kpi"><div class="lbl">Preço de compra de equilíbrio</div><div class="val" id="kpiBreakeven" style="font-size:1.3rem">—</div><div class="desc">@ máxima na compra p/ não dar prejuízo</div></div>
-  </div>
-
-  <!-- ================= APLICAÇÃO FINANCEIRA (embaixo) ================= -->
-  <div style="border-top:2px dashed var(--linha);margin:32px 0 6px"></div>
-  <div class="section-title" style="color:var(--azul);font-size:1.15rem">💰 A aplicação financeira (a alternativa)</div>
-
-  <div class="card" style="border-left:4px solid var(--azul)">
-    <h2 style="color:var(--azul)">Rendimento</h2>
-    <div class="field"><label>Rendimento bruto da aplicação<span class="hint">juros compostos — o dinheiro parado rendendo em vez de virar boi</span></label>
-      <div class="inp"><input type="number" id="taxaApp" value="1.5" step="0.1"><span class="prefix">%/mês</span></div></div>
-    <div class="field"><label>Imposto de renda<span class="hint">retido no resgate (15% p/ prazo &gt; 2 anos)</span></label>
-      <div class="inp"><input type="number" id="irApp" value="15" step="0.5"><span class="prefix">%</span></div></div>
-    <div class="field"><label>Rendimento líquido<span class="hint">bruto menos IR</span></label>
-      <div class="inp"><span class="prefix" id="taxaLiqTxt" style="font-weight:700;color:var(--azul)">—</span></div></div>
-  </div>
-
-  <div class="section-title">Comparação no período</div>
-  <div class="versus">
-    <div class="vs-col vs-gado">
-      <div class="vt" style="color:var(--verde)">🐂 Confinamento</div>
-      <div class="vbig" id="cmpGadoVal">—</div>
-      <div class="vsmall" id="cmpGadoDesc">lucro no período</div>
-    </div>
-    <div class="vs-mid">vs</div>
-    <div class="vs-col vs-app">
-      <div class="vt" style="color:var(--azul)">💰 Aplicação</div>
-      <div class="vbig" id="cmpAppVal">—</div>
-      <div class="vsmall" id="cmpAppDesc">mesmo dinheiro rendendo</div>
-    </div>
-  </div>
-  <div class="verdict" id="verdict">—</div>
-
-  <div class="mkt-note" style="border-left-color:var(--azul)">
-    <b style="color:var(--azul)">🧾 Impostos considerados</b> — agora os dois lados estão <b>líquidos</b>:
-    <ul>
-      <li><b>Gado — FUNRURAL 1,63%</b> sobre a venda bruta (a partir de abr/2026: INSS 1,32% + RAT 0,11% + SENAR 0,20%), retido pelo frigorífico na nota. O produtor não recolhe à parte.</li>
-      <li><b>Gado — ICMS:</b> na saída de boi vivo pro frigorífico costuma haver <b>diferimento</b> (quem recolhe é o frigorífico), então em geral não cai no seu bolso — por isso o preset traz só o FUNRURAL. Varia por estado.</li>
-      <li><b>Gado — IR da atividade rural:</b> incide sobre o <em>resultado</em>, não sobre o bruto. No lucro presumido a base é 20% da receita, tributada na tabela progressiva — carga efetiva de ~3–5% do bruto se você tiver imposto a pagar. Se quiser embutir, é só somar no campo “impostos sobre a venda”.</li>
-      <li><b>Aplicação — IR 15%</b> sobre o rendimento (renda fixa acima de 2 anos): 1,50%/mês bruto vira <b>1,275%/mês líquido</b>.</li>
-    </ul>
-    <span style="color:var(--muted)">Fontes:
-      <a href="https://aegro.com.br/blog/funrural-2026/" target="_blank">Aegro (FUNRURAL 2026)</a> ·
-      <a href="https://www.farmplus.com.br/aprenda/funrural-2026-o-que-e-quem-paga-aliquotas-como-calcular" target="_blank">FarmPlus</a> ·
-      <a href="https://aegro.com.br/blog/imposto-de-renda-produtor-rural/" target="_blank">Aegro (IR rural)</a>.
-      Isto é orientação geral, não vale como consultoria fiscal — confirme com seu contador.
-    </span>
+  <!-- TOTAIS DO LOTE -->
+  <div class="section-title">Totais do lote <small id="loteN">× 1 cabeça</small></div>
+  <div class="kpis rev" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kpi"><div class="lbl">Custo total do lote</div><div class="val rs" id="loteCusto">R$ 6.119,80</div><div class="u">todas as cabeças</div></div>
+    <div class="kpi"><div class="lbl">Receita do lote</div><div class="val" id="loteReceita">R$ 6.342,73</div><div class="u">todas as cabeças</div></div>
+    <div class="kpi"><div class="lbl">Resultado do lote</div><div class="val" id="loteResultado">R$ 222,94</div><div class="u">resultado × cabeças</div></div>
   </div>
 
   <p class="foot">
-    <strong>Premissas do MVP:</strong> compra e venda usam o mesmo rendimento de carcaça; a aplicação rende sobre o mesmo total
-    investido, a juros compostos e já líquida de IR. A mortalidade entra como um desconto esperado na venda (valor médio por
-    cabeça). O lucro do gado vem em uma única tacada no fim do ciclo e carrega risco (mortalidade, queda da arroba entre comprar
-    e vender) e iliquidez — a aplicação é líquida e compõe todo mês. Compare olhando os dois lados.
+    Campos ligados (🔗): GMD = (peso de saída − peso de entrada) ÷ dias. Mexer no GMD reajusta o peso de saída; mexer nos
+    pesos ou nas datas reajusta o GMD. Todo o restante (carcaça, arrobas, custos, receita e resultado) recalcula ao vivo.
+    Resultado = receita − custo total.
   </p>
 </div>
 
 <script>
-const fmtBRL = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
-const fmtN = (v,d=1) => new Intl.NumberFormat('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
-const fmtP = (v,d=2) => fmtN(v,d)+'%';
-const el = id => document.getElementById(id);
-const ids = ['pesoEntrada','pesoSaida','dias','ganhoDia','rendEntrada','rendimento','mortalidade','consumoDia','eficiencia','custoRacao','outrosDia','operDia','precoVenda','impVenda','kgArroba','precoCompra','taxaApp','irApp'];
+const fmtBRL=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
+const fmtN=(v,d=1)=>new Intl.NumberFormat('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
+const el=id=>document.getElementById(id);
+const PLAIN=['rcInicial','rendCarcaca','custoKgRacao','kgArroba','custoOperacionalDia','impostosGTA','funrural','precoArrobaEntrada','precoArrobaSaida','cabecas'];
 
-// campos correlacionados:
-//  (A) peso de saída = peso de entrada + ganho/dia × dias
-//  (B) eficiência    = ganho/dia ÷ consumo/dia
-const LINKED = ['pesoEntrada','pesoSaida','dias','ganhoDia','consumoDia','eficiencia'];
-const r1 = v => String(Math.round(v*10)/10);
-function relink(changed){
-  const pe=+el('pesoEntrada').value||0, ps=+el('pesoSaida').value||0;
-  const g=+el('ganhoDia').value||0, d=+el('dias').value||0;
-  const c=+el('consumoDia').value||0, e=+el('eficiencia').value||0;
-
-  // (B) eficiência ↔ consumo (envolve o ganho)
-  if(changed==='eficiencia'){ if(e>0&&g>0) el('consumoDia').value=(g/(e/100)).toFixed(1); }
-  if(changed==='consumoDia'||changed==='ganhoDia'){ if(c>0&&g>0) el('eficiencia').value=(g/c*100).toFixed(1); }
-
-  // (A) peso: mexeu na saída → recalcula a entrada; mexeu em entrada/ganho/dias → recalcula a saída
-  if(changed==='pesoSaida'){ el('pesoEntrada').value=r1(ps-g*d); }
-  if(changed==='pesoEntrada'||changed==='ganhoDia'||changed==='dias'){ el('pesoSaida').value=r1(pe+g*d); }
-
-  calc();
-}
+function getDias(){ return +el('dias').value||0; }
+function fmtDate(d){return d.toISOString().slice(0,10);}
+function diasDeDatas(){const e=new Date(el('dataEntrada').value),s=new Date(el('dataSaida').value);
+  let d=Math.round((s-e)/86400000); el('dias').value=d>0?d:0;}
+function saidaDeDias(){const e=new Date(el('dataEntrada').value),dias=+el('dias').value||0;
+  if(!isNaN(e.getTime())) el('dataSaida').value=fmtDate(new Date(e.getTime()+dias*86400000));}
+// correlações do GMD
+function gmdDePesos(){ const dias=getDias(); const pE=+el('pesoEntrada').value||0, pS=+el('pesoSaida').value||0;
+  if(dias>0) el('gmd').value=((pS-pE)/dias).toFixed(3); }
+function pesoDeGmd(){ const dias=getDias(); const pE=+el('pesoEntrada').value||0, g=+el('gmd').value||0;
+  el('pesoSaida').value=(pE+g*dias).toFixed(1); }
 
 function calc(){
-  const pesoSaida=+el('pesoSaida').value||0, dias=+el('dias').value||0, ganhoDia=+el('ganhoDia').value||0;
-  const rend=(+el('rendimento').value||0)/100, rendEntrada=(+el('rendEntrada').value||0)/100, consumoDia=+el('consumoDia').value||0, custoRacao=+el('custoRacao').value||0;
-  const outrosDia=+el('outrosDia').value||0, operDia=+el('operDia').value||0, precoVenda=+el('precoVenda').value||0, kgArroba=+el('kgArroba').value||15;
-  const precoCompra=+el('precoCompra').value||0, taxaApp=(+el('taxaApp').value||0)/100;
-  const mortalidade=(+el('mortalidade').value||0)/100, impVenda=(+el('impVenda').value||0)/100, irApp=(+el('irApp').value||0)/100;
+  const pE=+el('pesoEntrada').value||0, pS=+el('pesoSaida').value||0;
+  const rcI=(+el('rcInicial').value||0)/100, rcF=(+el('rendCarcaca').value||0)/100;
+  const cMS=+el('consumo').value||0, kg=+el('kgArroba').value||15;
+  const custoKg=+el('custoKgRacao').value||0;
+  const cAlim=Math.round(custoKg*cMS*100)/100, cOper=+el('custoOperacionalDia').value||0;
+  const impGTA=+el('impostosGTA').value||0, fun=(+el('funrural').value||0)/100;
+  const pAE=+el('precoArrobaEntrada').value||0, pAS=+el('precoArrobaSaida').value||0;
+  const dias=getDias();
 
-  const pesoEntrada=+el('pesoEntrada').value||0;
-  const ganhoTotal=pesoSaida-pesoEntrada;
-  const arrEntrada=(pesoEntrada*rendEntrada)/kgArroba;
-  const arrSaida=(pesoSaida*rend)/kgArroba;
-  const arrGanhas=arrSaida-arrEntrada;
+  const ganho=pS-pE;
+  const carcE=pE*rcI, carcS=pS*rcF;
+  const gmdC=dias>0?(carcS-carcE)/dias:0;
+  const arrE=carcE/kg, arrS=carcS/kg, arrProd=(carcS-carcE)/kg;
+  const consPV=(pE+pS)>0?cMS/((pE+pS)/2)*100:0;
+  const consTot=cMS*dias;
+  const efBio=arrProd>0?consTot/arrProd:0;
+  const custDiaTot=cAlim+cOper, custConf=custDiaTot*dias;
+  const custArrProd=arrProd>0?custConf/arrProd:0;
+  const compra=arrE*pAE, receita=arrS*pAS, funV=receita*fun;
+  const custoTotal=compra+custConf+impGTA+funV;
+  const result=receita-custoTotal;
+  const retTot=custoTotal>0?result/custoTotal*100:0;
+  const retMes=dias>0?retTot/(dias/30.44):0;
 
-  const eficiencia=consumoDia>0?ganhoDia/consumoDia:0;   // fração: ganho ÷ consumo
-  const racaoKg=consumoDia*dias;                          // kg ração no período
-  const compra=arrEntrada*precoCompra;
-  const racaoTotal=racaoKg*custoRacao;
-  const outrosTotal=outrosDia*dias;
-  const operTotal=operDia*dias;
-  const confin=racaoTotal+outrosTotal+operTotal;
-  const custoTotal=compra+confin;
+  el('seloTxt').textContent=((el('lote').value||'Lote').trim())+' — '+((el('categoria').value||'').trim());
+  const cab=+el('cabecas').value||1;
+  el('loteN').textContent='× '+cab+(cab===1?' cabeça':' cabeças');
+  el('loteCusto').textContent=fmtBRL(custoTotal*cab);
+  el('loteReceita').textContent=fmtBRL(receita*cab);
+  el('loteResultado').textContent=fmtBRL(result*cab);
+  el('loteResultado').className='val '+(result>=0?'':'rs');
+  el('ganhoTxt').textContent=fmtN(ganho,1)+' kg';
+  el('consTotTxt').textContent=fmtN(consTot,0)+' kg';
+  el('custoAlimTxt').textContent=fmtBRL(cAlim)+'/dia';
+  el('kGmdC').textContent=fmtN(gmdC,3);
+  el('kFrig').textContent=fmtN(carcS,2);
+  el('kArrE').textContent=fmtN(arrE,2)+' @';
+  el('kArrS').textContent=fmtN(arrS,2)+' @';
+  el('kArrProd').textContent=fmtN(arrProd,2)+' @';
+  el('kConsPV').textContent=fmtN(consPV,2)+'%';
+  el('kEfBio').textContent=fmtN(efBio,0);
+  el('kDiaria').textContent=fmtBRL(custDiaTot);
+  el('kCustoArr').textContent=fmtBRL(custArrProd);
 
-  const vendaBruta=arrSaida*precoVenda;
-  const impostoVenda=vendaBruta*impVenda;                 // FUNRURAL etc.
-  const perdaMort=(vendaBruta-impostoVenda)*mortalidade;  // haircut esperado por mortalidade
-  const vendaLiquida=vendaBruta-impostoVenda-perdaMort;
-  const lucro=vendaLiquida-custoTotal;
-
-  const meses=dias/30;
-  const pctPeriodo=custoTotal>0?lucro/custoTotal:0;
-  const pctMes=(custoTotal>0&&meses>0)?Math.pow(1+pctPeriodo,1/meses)-1:0;
-  const taxaAppLiq=taxaApp*(1-irApp);                     // taxa líquida de IR
-  const appFator=Math.pow(1+taxaAppLiq,meses)-1;
-  const appRend=custoTotal*appFator;
-
-  const custoPorArroba=arrGanhas>0?confin/arrGanhas:0;
-  const diaria=dias>0?confin/dias:0;
-  const compraEquilibrio=arrEntrada>0?(vendaLiquida-confin)/arrEntrada:0;
-
-  el('rowCompra').textContent='− '+fmtBRL(compra);
-  el('rowCompraDesc').textContent=`${fmtN(pesoEntrada,0)} kg × ${fmtN(rendEntrada*100,0)}% → ${fmtN(arrEntrada,2)} @ × ${fmtBRL(precoCompra)}`;
-  el('rowRacao').textContent='− '+fmtBRL(racaoTotal);
-  el('rowRacaoDesc').textContent=`${fmtN(consumoDia,1)} kg/dia × ${dias} dias × ${fmtBRL(custoRacao)}`;
-  el('eficHint').textContent=`${fmtN(ganhoDia,2)} kg ganho ÷ ${fmtN(consumoDia,1)} kg ração · equivale a ${fmtN(eficiencia>0?1/eficiencia:0,1)}:1`;
-  el('entradaHint').textContent=`${fmtN(pesoEntrada,0)} + ${fmtN(ganhoTotal,0)} kg de ganho = ${fmtN(pesoSaida,0)} kg de saída`;
-  el('rendHint').textContent=`abate: ${fmtN(pesoSaida,0)} kg vivo × ${fmtN(rend*100,0)}% = ${fmtN(pesoSaida*rend,0)} kg carcaça (${fmtN(arrSaida,2)} @)`;
-  el('arrVendaTxt').textContent=`${fmtN(arrSaida,2)} @  (${fmtN(pesoSaida*rend,0)} kg de carcaça)`;
-  el('arrVendaHint').textContent=`${fmtN(pesoSaida,0)} kg × ${fmtN(rend*100,0)}% ÷ ${kgArroba} = arrobas de carcaça`;
-  el('rowOutros').textContent='− '+fmtBRL(outrosTotal);
-  el('rowOutrosDesc').textContent=`${fmtBRL(outrosDia)}/dia × ${dias} dias`;
-  el('rowOper').textContent='− '+fmtBRL(operTotal);
-  el('rowOperDesc').textContent=`${fmtBRL(operDia)}/dia × ${dias} dias`;
-  el('rowCustoTotal').textContent=fmtBRL(custoTotal);
-  el('rowVenda').textContent='+ '+fmtBRL(vendaBruta);
-  el('rowVendaDesc').textContent=`${fmtN(pesoSaida,0)} kg → ${fmtN(arrSaida,2)} @ × ${fmtBRL(precoVenda)}`;
-  el('rowImp').textContent='− '+fmtBRL(impostoVenda);
-  el('rowImpDesc').textContent=`FUNRURAL ${fmtN(impVenda*100,2)}% sobre a venda bruta`;
-  el('rowMort').textContent='− '+fmtBRL(perdaMort);
-  el('rowMortDesc').textContent=`${fmtN(mortalidade*100,1)}% de risco de perder o animal`;
-  el('rowVendaLiq').textContent=fmtBRL(vendaLiquida);
-  el('rowLucro').textContent=fmtBRL(lucro); el('rowLucro').className='money '+(lucro>=0?'pos':'neg');
-
-  el('kpiLucro').textContent=fmtBRL(lucro); el('kpiLucro').className='val '+(lucro>=0?'pos':'neg');
-  el('kpiLucroDesc').textContent=`em ${dias} dias (${fmtN(meses,1)} meses)`;
-  el('kpiPct').textContent=fmtP(pctPeriodo*100); el('kpiPct').className='val '+(pctPeriodo>=0?'pos':'neg');
-  el('kpiPctMes').textContent=fmtP(pctMes*100); el('kpiPctMes').className='val '+(pctMes>=0?'pos':'neg');
-
-  el('cmpGadoVal').textContent=fmtBRL(lucro); el('cmpGadoVal').className='vbig '+(lucro>=0?'pos':'neg');
-  el('cmpGadoDesc').textContent=`${fmtP(pctPeriodo*100)} no período · ${fmtP(pctMes*100)}/mês`;
-  el('cmpAppVal').textContent=fmtBRL(appRend); el('cmpAppVal').className='vbig azul';
-  el('cmpAppDesc').textContent=`${fmtP(appFator*100)} no período · ${fmtN(taxaAppLiq*100,3)}%/mês líquido`;
-  el('taxaLiqTxt').textContent=`${fmtN(taxaAppLiq*100,3)}% /mês`;
-
-  const v=el('verdict'); const dif=lucro-appRend;
-  if(Math.abs(dif)<0.5){v.className='verdict';v.style.background='#eee';v.style.color='#333';v.textContent='Empate técnico entre gado e aplicação.';}
-  else if(dif>0){v.className='verdict gado';v.textContent=`🐂 O gado ganha por ${fmtBRL(dif)} por cabeça no período — nesse cenário compensa confinar.`;}
-  else{v.className='verdict app';v.textContent=`💰 A aplicação ganha por ${fmtBRL(-dif)} por cabeça — nesse cenário compensa mais deixar o dinheiro rendendo.`;}
-
-  el('kpiCustoArroba').textContent=fmtBRL(custoPorArroba);
-  el('kpiDiaria').textContent=fmtBRL(diaria);
-  el('kpiBreakeven').textContent=fmtBRL(compraEquilibrio)+'/@';
-
-  const agio=precoVenda>0?(precoCompra/precoVenda-1)*100:0;
-  if(agio>0.1) el('agioHint').textContent=`boi magro ${fmtN(agio,1)}% mais caro que o gordo`;
-  else if(agio<-0.1) el('agioHint').textContent=`boi magro ${fmtN(-agio,1)}% mais barato que o gordo`;
-  else el('agioHint').textContent='boi magro / reposição (mesma arroba)';
+  el('rCompra').textContent='− '+fmtBRL(compra);
+  el('rCompraD').textContent=`${fmtN(pE,0)} kg × ${fmtN(rcI*100,0)}% → ${fmtN(arrE,2)} @ × ${fmtBRL(pAE)}`;
+  el('rConf').textContent='− '+fmtBRL(custConf);
+  el('rConfD').textContent=`${fmtBRL(custDiaTot)}/dia × ${dias} dias`;
+  el('rImpGTA').textContent='− '+fmtBRL(impGTA);
+  el('rFun').textContent='− '+fmtBRL(funV);
+  el('rFunD').textContent=`${fmtN(fun*100,2)}% da receita`;
+  el('rCustoTotal').textContent=fmtBRL(custoTotal);
+  el('rReceita').textContent='+ '+fmtBRL(receita);
+  el('rRecD').textContent=`${fmtN(pS,0)} kg × ${fmtN(rcF*100,0)}% → ${fmtN(arrS,2)} @ × ${fmtBRL(pAS)}`;
+  el('rResultado').textContent=fmtBRL(result); el('rResultado').className='money '+(result>=0?'pos':'neg');
+  el('bResultado').textContent=fmtBRL(result); el('bResultado').className='v'+(result>=0?'':' neg');
+  el('bResultadoS').textContent=`em ${dias} dias · por cabeça`;
+  el('kRetTot').textContent=fmtN(retTot,2)+'%';
+  el('kRetMes').textContent=fmtN(retMes,2)+'%';
 }
-ids.forEach(id=>{
-  if(LINKED.includes(id)) el(id).addEventListener('input',()=>relink(id));
-  else el(id).addEventListener('input',calc);
-});
-calc();
+
+// eficiência alimentar ligada ao GMD e ao consumo: efic% = ganho ÷ consumo
+function eficDeGmd(){const g=+el('gmd').value||0,c=+el('consumo').value||0; if(c>0) el('eficAlim').value=(g/c*100).toFixed(2);}
+function consumoDeEfic(){const g=+el('gmd').value||0,e=+el('eficAlim').value||0; if(e>0) el('consumo').value=(g/(e/100)).toFixed(3);}
+
+el('pesoEntrada').addEventListener('input',()=>{gmdDePesos();eficDeGmd();calc();});
+el('pesoSaida').addEventListener('input',()=>{gmdDePesos();eficDeGmd();calc();});
+el('gmd').addEventListener('input',()=>{pesoDeGmd();eficDeGmd();calc();});
+el('dataEntrada').addEventListener('input',()=>{saidaDeDias();gmdDePesos();eficDeGmd();calc();});
+el('dataSaida').addEventListener('input',()=>{diasDeDatas();gmdDePesos();eficDeGmd();calc();});
+el('dias').addEventListener('input',()=>{saidaDeDias();gmdDePesos();eficDeGmd();calc();});
+el('consumo').addEventListener('input',()=>{eficDeGmd();calc();});
+el('eficAlim').addEventListener('input',()=>{consumoDeEfic();calc();});
+PLAIN.forEach(id=>el(id).addEventListener('input',calc));
+el('lote').addEventListener('input',calc);
+el('categoria').addEventListener('input',calc);
+eficDeGmd();calc();
+
+// frase financeira (pergunta) — sorteada a cada abertura
+var FRASES=[
+ "Seu boi rende mais que o dinheiro parado, ou você só está pagando pra trabalhar?",
+ "Cada arroba produzida paga o custo dela, ou come a sua margem?",
+ "Você compra o boi magro no preço certo, ou paga o ágio da reposição?",
+ "Se a arroba cair 10% até o abate, esse lote ainda fecha no azul?",
+ "Quanto vale, em reais, cada dia a menos de confinamento?",
+ "Preço de venda você não controla; conversão alimentar, sim. Está de olho em qual?",
+ "Você sabe o custo da arroba produzida antes de fechar a compra do boi?",
+ "No fim do ciclo, você lucrou de verdade ou só girou o dinheiro?",
+ "Ganho de peso é vaidade; margem por arroba é sanidade. Onde está a sua?",
+ "O capital preso no cocho renderia mais em outro lugar nesses mesmos dias?",
+ "Mortalidade e sanidade entram na sua conta, ou só aparecem no prejuízo?",
+ "Você mede o resultado por cabeça, ou se ilude com o total do lote?",
+ "Quanto do seu lucro é manejo e quanto é só sorte com o preço da arroba?",
+ "Reposição cara hoje costuma virar prejuízo lá na frente — você travou o preço?",
+ "O custo operacional está no papel, ou escondido no seu bolso?",
+ "Comprar barato ou vender caro: onde mora, de fato, a sua margem?",
+ "Você confinaria de novo com exatamente os números que fechou neste lote?",
+ "Quantos reais por cabeça separam este ciclo do prejuízo? Você sabe de cabeça?",
+ "Eficiência alimentar de 1% a mais paga quantas arrobas no fim do lote?",
+ "Se o dinheiro rende sozinho, o gado precisa render mais que isso pra valer a pena — e o seu?"
+];
+try{document.getElementById('frase').textContent=FRASES[Math.floor(Math.random()*FRASES.length)];}catch(e){}
+
+// flash de revelação por card ao rolar (estouro + raio varrendo), igual ao rendimentos
+(function(){
+  if(!document.documentElement.classList.contains('animar')||!('IntersectionObserver' in window)) return;
+  function sweep(alvo){alvo.classList.add('raiando');var r=document.createElement('span');r.className='rvsweep';
+    alvo.appendChild(r);setTimeout(function(){if(r.parentNode)r.parentNode.removeChild(r);alvo.classList.remove('raiando');},820);}
+  var obs=new IntersectionObserver(function(ents){ents.forEach(function(en){if(!en.isIntersecting)return;
+    en.target.classList.add('vis');sweep(en.target);obs.unobserve(en.target);});},{threshold:0.1,rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.rev').forEach(function(x){obs.observe(x);});
+  setTimeout(function(){document.querySelectorAll('.rev:not(.vis)').forEach(function(x){x.classList.add('vis');});},7000);
+})();
 </script>
 </body>
 </html>
